@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 OPTION(USE_OPENMP "Enable OpenMP" ON)
 
 project(tgcat VERSION 1.0.0)
+set(CMAKE_CXX_FLAGS " -std=c++17")
 
 if(USE_DEBUG)
     ADD_DEFINITIONS(-DDEBUG)

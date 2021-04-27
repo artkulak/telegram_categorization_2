@@ -26,26 +26,22 @@ namespace LightGBM
 
     ~ApplicationLightGBM();
 
-    inline void Run();
-
-  private:
-
-    void LoadModel(const std::string model_folder);
+    void LoadModel(const std::string model_path);
 
     void LoadData();
 
     void InitPredict();
 
     void Predict();
-
-    void ConvertModel();
-
-    Config config_;
+    
+  private:
+    Config first_config_;
+    std::vector<Config> config_;
     std::unique_ptr<Dataset> train_data_;
     std::vector<std::unique_ptr<Dataset>> valid_datas_;
     std::vector<std::unique_ptr<Metric>> train_metric_;
     std::vector<std::vector<std::unique_ptr<Metric>>> valid_metrics_;
-    std::unique_ptr<Boosting> boosting_;
+    std::vector<std::shared_ptr<Boosting>> boosting_;
     std::unique_ptr<ObjectiveFunction> objective_fun_;
   };
 

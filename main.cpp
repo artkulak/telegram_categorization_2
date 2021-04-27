@@ -5,7 +5,11 @@ int main(int argc, char **argv)
 {
     try
     {
-        LightGBM::ApplicationLightGBM app();
+        LightGBM::ApplicationLightGBM app;
+        app.LoadModel("../model/");
+        app.LoadData();
+        app.InitPredict();
+        app.Predict();
     }
     catch (const std::exception &ex)
     {
