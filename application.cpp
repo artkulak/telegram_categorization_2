@@ -18,14 +18,13 @@ namespace LightGBM
     ApplicationLightGBM::ApplicationLightGBM(int argc, char **argv)
     {
         LoadParameters(argc, argv);
-        // set number of threads for openmp
         if (config_.num_threads > 0)
         {
             omp_set_num_threads(config_.num_threads);
         }
         if (config_.data.size() == 0 && config_.task != TaskType::kConvertModel)
         {
-            Log::Fatal("No training/prediction data, ApplicationLightGBM quit");
+            Log::Fatal("No prediction data, ApplicationLightGBM quit");
         }
     }
 
@@ -177,65 +176,6 @@ namespace LightGBM
         // output used time on each iteration
         Log::Info("Finished loading data in %f seconds",
                   std::chrono::duration<double, std::milli>(end_time - start_time) * 1e-3);
-    }
-
-    void ApplicationLightGBM::InitTrain()
-    {
-        if (config_.is_parallel)
-        {
-            // need init network
-            Network::Init(config_);
-            Log::Info("Finished initializing network");
-            config_.feature_fraction_seed =
-                Network::GlobalSyncUpByMin(config_.feature_fraction_seed);
-            config_.feature_fraction =
-                Network::GlobalSyncUpByMin(config_.feature_fraction);
-            config_.drop_seed =
-                Network::GlobalSyncUpByMin(config_.drop_seed);
-        }
-
-        // create boosting
-        boosting_.reset(
-            Boosting::CreateBoosting(config_.boosting,
-                                     config_.input_model.c_str()));
-        // create objective function
-        objective_fun_.reset(
-            ObjectiveFunction::CreateObjectiveFunction(config_.objective,
-                                                       config_));
-        // load training data
-        LoadData();
-        if (config_.task == TaskType::kSaveBinary)
-        {
-            Log::Info("Save data as binary finished, exit");
-            exit(0);
-        }
-        // initialize the objective function
-        objective_fun_->Init(train_data_->metadata(), train_data_->num_data());
-        // initialize the boosting
-        boosting_->Init(&config_, train_data_.get(), objective_fun_.get(),
-                        Common::ConstPtrInVectorWrapper<Metric>(train_metric_));
-        // add validation data into boosting
-        for (size_t i = 0; i < valid_datas_.size(); ++i)
-        {
-            boosting_->AddValidDataset(valid_datas_[i].get(),
-                                       Common::ConstPtrInVectorWrapper<Metric>(valid_metrics_[i]));
-            Log::Debug("Number of data points in validation set #%zu: %zu", i + 1, valid_datas_[i]->num_data());
-        }
-        Log::Info("Finished initializing training");
-    }
-
-    void ApplicationLightGBM::Train()
-    {
-        Log::Info("Started training...");
-        boosting_->Train(config_.snapshot_freq, config_.output_model);
-        boosting_->SaveModelToFile(0, -1, config_.saved_feature_importance_type,
-                                   config_.output_model.c_str());
-        // convert model to if-else statement code
-        if (config_.convert_model_language == std::string("cpp"))
-        {
-            boosting_->SaveModelToIfElse(-1, config_.convert_model.c_str());
-        }
-        Log::Info("Finished training");
     }
 
     void ApplicationLightGBM::Predict()

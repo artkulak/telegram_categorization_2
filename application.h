@@ -33,10 +33,6 @@ namespace LightGBM
 
     void LoadData();
 
-    void InitTrain();
-
-    void Train();
-
     void InitPredict();
 
     void Predict();
@@ -54,20 +50,8 @@ namespace LightGBM
 
   inline void ApplicationLightGBM::Run()
   {
-    if (config_.task == LightGBM::TaskType::kPredict || config_.task == LightGBM::TaskType::KRefitTree)
-    {
-      InitPredict();
-      Predict();
-    }
-    else if (config_.task == LightGBM::TaskType::kConvertModel)
-    {
-      ConvertModel();
-    }
-    else
-    {
-      InitTrain();
-      Train();
-    }
+    InitPredict();
+    Predict();
   }
 
 } // namespace LightGBM
