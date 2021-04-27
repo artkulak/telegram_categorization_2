@@ -22,14 +22,15 @@ namespace LightGBM
   class ApplicationLightGBM
   {
   public:
-    ApplicationLightGBM(int argc, char **argv);
+    ApplicationLightGBM();
 
     ~ApplicationLightGBM();
 
     inline void Run();
 
   private:
-    void LoadParameters(int argc, char **argv);
+
+    void LoadModel(const std::string model_folder);
 
     void LoadData();
 
@@ -47,12 +48,6 @@ namespace LightGBM
     std::unique_ptr<Boosting> boosting_;
     std::unique_ptr<ObjectiveFunction> objective_fun_;
   };
-
-  inline void ApplicationLightGBM::Run()
-  {
-    InitPredict();
-    Predict();
-  }
 
 } // namespace LightGBM
 

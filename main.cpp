@@ -5,8 +5,7 @@ int main(int argc, char **argv)
 {
     try
     {
-        LightGBM::ApplicationLightGBM app(argc, argv);
-        app.Run();
+        LightGBM::ApplicationLightGBM app();
     }
     catch (const std::exception &ex)
     {

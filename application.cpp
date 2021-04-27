@@ -1,5 +1,6 @@
 #include <LightGBM/dataset_loader.h>
 #include <LightGBM/network.h>
+#include <LightGBM/utils/common.h>
 
 #include <string>
 #include <chrono>
@@ -15,9 +16,8 @@
 namespace LightGBM
 {
 
-    ApplicationLightGBM::ApplicationLightGBM(int argc, char **argv)
+    ApplicationLightGBM::ApplicationLightGBM()
     {
-        LoadParameters(argc, argv);
         if (config_.num_threads > 0)
         {
             omp_set_num_threads(config_.num_threads);
@@ -26,6 +26,8 @@ namespace LightGBM
         {
             Log::Fatal("No prediction data, ApplicationLightGBM quit");
         }
+        InitPredict();
+        Predict();
     }
 
     ApplicationLightGBM::~ApplicationLightGBM()
@@ -36,48 +38,12 @@ namespace LightGBM
         }
     }
 
-    void ApplicationLightGBM::LoadParameters(int argc, char **argv)
+    void ApplicationLightGBM::LoadModel(const std::string model_folder)
     {
-        std::unordered_map<std::string, std::string> params;
-        for (int i = 1; i < argc; ++i)
-        {
-            Config::KV2Map(&params, argv[i]);
-        }
-        // check for alias
-        ParameterAlias::KeyAliasTransform(&params);
-        // read parameters from config file
-        if (params.count("config") > 0)
-        {
-            TextReader<size_t> config_reader(params["config"].c_str(), false);
-            config_reader.ReadAllLines();
-            if (!config_reader.Lines().empty())
-            {
-                for (auto &line : config_reader.Lines())
-                {
-                    if (line.size() > 0 && std::string::npos != line.find_first_of("#"))
-                    {
-                        line.erase(line.find_first_of("#"));
-                    }
-                    line = Common::Trim(line);
-                    if (line.size() == 0)
-                    {
-                        continue;
-                    }
-                    Config::KV2Map(&params, line.c_str());
-                }
-            }
-            else
-            {
-                Log::Warning("Config file %s doesn't exist, will ignore",
-                             params["config"].c_str());
-            }
-        }
-        // check for alias again
-        ParameterAlias::KeyAliasTransform(&params);
-        // load configs
-        config_.Set(params);
-        Log::Info("Finished loading parameters");
+        //need redefenition
+        //config_.Set(params);
     }
+
 
     void ApplicationLightGBM::LoadData()
     {
