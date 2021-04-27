@@ -8,7 +8,6 @@ int main(int argc, char **argv)
         LightGBM::ApplicationLightGBM app;
         app.LoadModel("../model/");
         app.InitPredict();
-        app.LoadData();
         app.Predict();
     }
     catch (const std::exception &ex)

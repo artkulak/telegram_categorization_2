@@ -36,7 +36,7 @@ namespace LightGBM
             std::unordered_map<std::string, std::string> params;
 
             params.insert({"task", "predict"});
-            params.insert({"data", "../data/test_for_c++_inference.tsv"});
+            params.insert({"data", "../data/test_for_c++_inference.csv"});
             params.insert({"input_model", model_name.path()});
             configs_params.push_back(params);
         }
@@ -58,49 +58,6 @@ namespace LightGBM
         {
             Log::Fatal("prediction data, application quit");
         }
-    }
-
-    void ApplicationLightGBM::LoadData()
-    {
-        if (first_config_.data.size() == 0 && first_config_.task != TaskType::kConvertModel)
-        {
-            Log::Fatal("No prediction data, application quit");
-        }
-
-        auto start_time = std::chrono::high_resolution_clock::now();
-        std::unique_ptr<Predictor> predictor;
-        // prediction is needed if using input initial model(continued train)
-        PredictFunction predict_fun = nullptr;
-        // need to continue training
-        if (boosting_.front()->NumberOfTotalModel() > 0 && first_config_.task != TaskType::KRefitTree)
-        {
-            predictor.reset(new Predictor(boosting_.front().get(), 0, -1, true, false, false, false, -1, -1));
-            predict_fun = predictor->GetPredictFunction();
-        }
-
-        // sync up random seed for data partition
-        if (first_config_.is_data_based_parallel)
-        {
-            first_config_.data_random_seed = Network::GlobalSyncUpByMin(first_config_.data_random_seed);
-        }
-
-        Log::Debug("Loading train file...");
-        DatasetLoader dataset_loader(first_config_, predict_fun,
-                                     first_config_.num_class, first_config_.data.c_str());
-
- 
-        train_data_.reset(dataset_loader.LoadFromFile(first_config_.data.c_str(), 0, 1));
-        // need save binary file
-        if (first_config_.save_binary)
-        {
-            train_data_->SaveBinaryFile(nullptr);
-        }
-        train_metric_.shrink_to_fit();
-
-        auto end_time = std::chrono::high_resolution_clock::now();
-        // output used time on each iteration
-        Log::Info("Finished loading data in %f seconds",
-                  std::chrono::duration<double, std::milli>(end_time - start_time) * 1e-3);
     }
 
     void ApplicationLightGBM::Predict()
