@@ -30,14 +30,13 @@ namespace LightGBM
 
     void ApplicationLightGBM::LoadModel(const std::string models_path)
     {
-        first_config_.output_result = "lightgbm_model_output_";
         std::vector<std::unordered_map<std::string, std::string>> configs_params;
         for (const auto &model_name : std::filesystem::directory_iterator(models_path))
         {
             std::unordered_map<std::string, std::string> params;
 
             params.insert({"task", "predict"});
-            params.insert({"data", "../data/test_for_c++_inference.csv"});
+            params.insert({"data", "../data/test_for_c++_inference.tsv"});
             params.insert({"input_model", model_name.path()});
             configs_params.push_back(params);
         }
@@ -48,11 +47,26 @@ namespace LightGBM
             config.Set(*i);
             config_.push_back(config);
         }
+
+        first_config_ = config_.front();
+        first_config_.output_result = "lightgbm_model_output_";
+        if (first_config_.num_threads > 0)
+        {
+            omp_set_num_threads(first_config_.num_threads);
+        }
+        if (first_config_.data.size() == 0 && first_config_.task != TaskType::kConvertModel)
+        {
+            Log::Fatal("prediction data, application quit");
+        }
     }
 
     void ApplicationLightGBM::LoadData()
     {
-        Config first_config_ = config_.front();
+        if (first_config_.data.size() == 0 && first_config_.task != TaskType::kConvertModel)
+        {
+            Log::Fatal("No prediction data, application quit");
+        }
+
         auto start_time = std::chrono::high_resolution_clock::now();
         std::unique_ptr<Predictor> predictor;
         // prediction is needed if using input initial model(continued train)
@@ -73,77 +87,16 @@ namespace LightGBM
         Log::Debug("Loading train file...");
         DatasetLoader dataset_loader(first_config_, predict_fun,
                                      first_config_.num_class, first_config_.data.c_str());
-        // load Training data
-        if (first_config_.is_data_based_parallel)
-        {
-            // load data for distributed training
-            train_data_.reset(dataset_loader.LoadFromFile(first_config_.data.c_str(),
-                                                          Network::rank(), Network::num_machines()));
-        }
-        else
-        {
-            // load data for single machine
-            train_data_.reset(dataset_loader.LoadFromFile(first_config_.data.c_str(), 0, 1));
-        }
+
+ 
+        train_data_.reset(dataset_loader.LoadFromFile(first_config_.data.c_str(), 0, 1));
         // need save binary file
         if (first_config_.save_binary)
         {
             train_data_->SaveBinaryFile(nullptr);
         }
-        // create training metric
-        if (first_config_.is_provide_training_metric)
-        {
-            for (auto metric_type : first_config_.metric)
-            {
-                auto metric = std::unique_ptr<Metric>(Metric::CreateMetric(metric_type, first_config_));
-                if (metric == nullptr)
-                {
-                    continue;
-                }
-                metric->Init(train_data_->metadata(), train_data_->num_data());
-                train_metric_.push_back(std::move(metric));
-            }
-        }
         train_metric_.shrink_to_fit();
 
-        if (!first_config_.metric.empty())
-        {
-            // only when have metrics then need to construct validation data
-
-            // Add validation data, if it exists
-            for (size_t i = 0; i < first_config_.valid.size(); ++i)
-            {
-                Log::Debug("Loading validation file #%zu...", (i + 1));
-                // add
-                auto new_dataset = std::unique_ptr<Dataset>(
-                    dataset_loader.LoadFromFileAlignWithOtherDataset(
-                        first_config_.valid[i].c_str(),
-                        train_data_.get()));
-                valid_datas_.push_back(std::move(new_dataset));
-                // need save binary file
-                if (first_config_.save_binary)
-                {
-                    valid_datas_.back()->SaveBinaryFile(nullptr);
-                }
-
-                // add metric for validation data
-                valid_metrics_.emplace_back();
-                for (auto metric_type : first_config_.metric)
-                {
-                    auto metric = std::unique_ptr<Metric>(Metric::CreateMetric(metric_type, first_config_));
-                    if (metric == nullptr)
-                    {
-                        continue;
-                    }
-                    metric->Init(valid_datas_.back()->metadata(),
-                                 valid_datas_.back()->num_data());
-                    valid_metrics_.back().push_back(std::move(metric));
-                }
-                valid_metrics_.back().shrink_to_fit();
-            }
-            valid_datas_.shrink_to_fit();
-            valid_metrics_.shrink_to_fit();
-        }
         auto end_time = std::chrono::high_resolution_clock::now();
         // output used time on each iteration
         Log::Info("Finished loading data in %f seconds",
@@ -156,7 +109,6 @@ namespace LightGBM
         {
             Log::Fatal("No prediction data, ApplicationLightGBM quit");
         }
-
         for (auto i = 0; i != boosting_.size(); ++i)
         {
             // create predictor
