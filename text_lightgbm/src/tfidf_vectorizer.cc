@@ -9,7 +9,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
  */
 
 #include "tfidf_vectorizer.h"
+
 #include <onmt/Tokenizer.h>
+#include <fstream>
 
 TfIdfVectorizer::TfIdfVectorizer(bool binary, bool lowercase, bool use_idf, int max_features, std::string norm, bool sublinear_tf)
 {
@@ -204,9 +206,9 @@ TfIdfVectorizer::matrix TfIdfVectorizer::transform(std::vector<std::string> &doc
     return X_transformed;
 }
 
-std::vector<std::pair<std::string, std::string>> load_csv(const std::string &path_file)
+std::vector<std::pair<std::string, std::string>> TfIdfVectorizer::load_csv(const std::string &path_file)
 {
-    std::vector<std::string> result;
+    std::vector<std::pair<std::string, std::string>> result;
     std::string line;
 
     std::ifstream file(path_file);
@@ -226,13 +228,13 @@ std::vector<std::pair<std::string, std::string>> load_csv(const std::string &pat
     return result;
 }
 
-void load_model(const std::string &path_directory)
+void TfIdfVectorizer::load_model(const std::string &path_directory)
 {
     std::map<std::string, double> idf;
     std::vector<std::pair<std::string, std::string>> idf_data = load_csv(path_directory + idf_name_file);
     for (auto i = 0; i != idf_data.size(); ++i)
     {
-        idf.insert({idf_data[i]].first, std::stod(idf_data[i].second)})
+        idf.insert({idf_data[i].first, std::stod(idf_data[i].second)});
     }
     idf_ = idf;
 
@@ -240,7 +242,7 @@ void load_model(const std::string &path_directory)
     std::vector<std::pair<std::string, std::string>> vocabulary_data = load_csv(path_directory + vocabulary_tfidf_name_file);
     for (auto i = 0; i != vocabulary_data.size(); ++i)
     {
-        idf.insert({vocabulary_data[i].first, std::stoul(vocabulary_data[i].second)})
+        idf.insert({vocabulary_data[i].first, std::stoul(vocabulary_data[i].second)});
     }
     vocabulary_ = vocabulary;
 
@@ -253,7 +255,7 @@ void load_model(const std::string &path_directory)
         }
         else if(params_data[i].first == "use_idf")
         {
-            use_idf = std::stoi(params[i].second);
+            use_idf = std::stoi(params_data[i].second);
         }
     }
     

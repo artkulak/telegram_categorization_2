@@ -17,6 +17,8 @@
 #include <memory>
 #include <vector>
 
+#include "tfidf_vectorizer.h"
+
 namespace LightGBM
 {
   class ApplicationLightGBM
@@ -34,6 +36,7 @@ namespace LightGBM
     
   private:
     Config first_config_;
+    TfIdfVectorizer vectorizer_;
     std::vector<Config> config_;
     std::unique_ptr<Dataset> train_data_;
     std::vector<std::unique_ptr<Dataset>> valid_datas_;

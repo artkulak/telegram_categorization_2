@@ -33,12 +33,15 @@ namespace LightGBM
         std::vector<std::unordered_map<std::string, std::string>> configs_params;
         for (const auto &model_name : std::filesystem::directory_iterator(models_path))
         {
-            std::unordered_map<std::string, std::string> params;
+            if (!std::filesystem::is_directory(model_name.path()))
+            {
+                std::unordered_map<std::string, std::string> params;
 
-            params.insert({"task", "predict"});
-            params.insert({"data", "../data/test_for_c++_inference.csv"});
-            params.insert({"input_model", model_name.path()});
-            configs_params.push_back(params);
+                params.insert({"task", "predict"});
+                params.insert({"data", "../data/test_for_c++_inference.csv"});
+                params.insert({"input_model", model_name.path()});
+                configs_params.push_back(params);
+            }
         }
 
         for (auto i = configs_params.begin(); i != configs_params.end(); ++i)
@@ -47,6 +50,8 @@ namespace LightGBM
             config.Set(*i);
             config_.push_back(config);
         }
+
+        vectorizer_.load_model(first_config_.input_model + "/tfidf/");
 
         first_config_ = config_.front();
         first_config_.output_result = "lightgbm_model_output_";
@@ -74,7 +79,7 @@ namespace LightGBM
                                 first_config_.pred_early_stop, first_config_.pred_early_stop_freq,
                                 first_config_.pred_early_stop_margin);
             predictor.Predict(first_config_.data.c_str(),
-                              (first_config_.output_result + std::to_string(i) + ".txt").c_str(), first_config_.header, first_config_.predict_disable_shape_check);
+                              (first_config_.output_result + std::to_string(i) + ".txt").c_str(), vectorizer_, first_config_.header, first_config_.predict_disable_shape_check);
         }
         Log::Info("Finished prediction");
     }

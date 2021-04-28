@@ -18,6 +18,8 @@
 #include <utility>
 #include <vector>
 
+#include "tfidf_vectorizer.h"
+
 namespace LightGBM
 {
 
@@ -163,7 +165,7 @@ namespace LightGBM
             return predict_sparse_fun_;
         }
 
-        void Predict(const char *data_filename, const char *result_filename, bool header, bool disable_shape_check)
+        void Predict(const char *data_filename, const char *result_filename, TfIdfVectorizer& vectorizer, bool header, bool disable_shape_check)
         {
             auto writer = VirtualFileWriter::Make(result_filename);
             if (!writer->Init())
