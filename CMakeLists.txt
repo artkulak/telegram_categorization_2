@@ -19,7 +19,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/resources/LightGBM/include)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/resources/Tokenizer/include)
 
-add_executable(tgcat main.cpp application.cpp tfidf_vectorizer.cc)
+add_executable(tgcat text_lightgbm/src/main.cpp text_lightgbm/src/application.cpp text_lightgbm/src/tfidf_vectorizer.cc)
 target_link_libraries(tgcat "${CMAKE_SOURCE_DIR}/resources/LightGBM/lib_lightgbm.so")
 target_link_libraries(tgcat "${CMAKE_SOURCE_DIR}/resources/Tokenizer/build/libOpenNMTTokenizer.so")
 
