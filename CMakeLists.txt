@@ -17,6 +17,9 @@ endif(USE_OPENMP)
 add_library(_lightgbm SHARED IMPORTED)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/resources/LightGBM/include)
 
-add_executable(tgcat main.cpp application.cpp)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/resources/Tokenizer/include)
+
+add_executable(tgcat main.cpp application.cpp tfidf_vectorizer.cc)
 target_link_libraries(tgcat "${CMAKE_SOURCE_DIR}/resources/LightGBM/lib_lightgbm.so")
+target_link_libraries(tgcat "${CMAKE_SOURCE_DIR}/resources/Tokenizer/build/libOpenNMTTokenizer.so")
 
