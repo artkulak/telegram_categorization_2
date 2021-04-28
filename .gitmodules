@@ -1,0 +1,6 @@
+[submodule "resources/LightGBM"]
+	path = resources/LightGBM
+	url = https://github.com/microsoft/LightGBM
+[submodule "resources/Tokenizer"]
+	path = resources/Tokenizer
+	url = https://github.com/OpenNMT/Tokenizer

@@ -51,7 +51,7 @@ namespace LightGBM
             config_.push_back(config);
         }
 
-        vectorizer_.load_model(first_config_.input_model + "/tfidf/");
+        vectorizer_.load_model(models_path + "/tfidf/");
 
         first_config_ = config_.front();
         first_config_.output_result = "lightgbm_model_output_";
