@@ -11,21 +11,22 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include "tfidf_vectorizer.h"
 #include <onmt/Tokenizer.h>
 
-
 TfIdfVectorizer::TfIdfVectorizer(bool binary, bool lowercase, bool use_idf, int max_features, std::string norm, bool sublinear_tf)
 {
     this->binary = binary;
     this->max_features = max_features; // -1 uses all words.
-    if (norm == "l2") this->p = 2;
-    else if (norm == "l1") this->p = 1;
-    else this->p = 0;
+    if (norm == "l2")
+        this->p = 2;
+    else if (norm == "l1")
+        this->p = 1;
+    else
+        this->p = 0;
     this->lowercase = lowercase;
     this->use_idf = use_idf;
     this->sublinear_tf = sublinear_tf;
 }
 
-
-std::vector<std::string> TfIdfVectorizer::tokenise_document(std::string& document)
+std::vector<std::string> TfIdfVectorizer::tokenise_document(std::string &document)
 {
     onmt::Tokenizer tokenizer(onmt::Tokenizer::Mode::Conservative, onmt::Tokenizer::Flags::JoinerAnnotate);
     std::vector<std::string> tokens;
@@ -33,8 +34,7 @@ std::vector<std::string> TfIdfVectorizer::tokenise_document(std::string& documen
     return tokens;
 }
 
-
-std::vector<std::vector<std::string>> TfIdfVectorizer::tokenise_documents(std::vector<std::string>& documents)
+std::vector<std::vector<std::string>> TfIdfVectorizer::tokenise_documents(std::vector<std::string> &documents)
 {
     std::vector<std::vector<std::string>> documents_tokenised;
     for (size_t i = 0; i < documents.size(); i++)
@@ -42,7 +42,7 @@ std::vector<std::vector<std::string>> TfIdfVectorizer::tokenise_documents(std::v
     return documents_tokenised;
 }
 
-std::vector<std::map<std::string, int>> TfIdfVectorizer::word_count(std::vector<std::vector<std::string>>& documents_tokenised)
+std::vector<std::map<std::string, int>> TfIdfVectorizer::word_count(std::vector<std::vector<std::string>> &documents_tokenised)
 {
     std::vector<std::map<std::string, int>> documents_word_counts;
     std::string word;
@@ -66,11 +66,11 @@ std::vector<std::map<std::string, int>> TfIdfVectorizer::word_count(std::vector<
         this->vocabulary_[word] = i;
         i++;
     }
-    
+
     return documents_word_counts;
 }
 
-void TfIdfVectorizer::fit(std::vector<std::string>& documents)
+void TfIdfVectorizer::fit(std::vector<std::string> &documents)
 {
     this->vocabulary_.clear();
     this->idf_.clear();
@@ -79,7 +79,7 @@ void TfIdfVectorizer::fit(std::vector<std::string>& documents)
     idf(documents_word_counts);
 }
 
-std::map<std::string, double> TfIdfVectorizer::idf(std::vector<std::map<std::string, int>>& documents_word_counts)
+std::map<std::string, double> TfIdfVectorizer::idf(std::vector<std::map<std::string, int>> &documents_word_counts)
 {
     std::string key;
     int value;
@@ -106,9 +106,9 @@ std::map<std::string, double> TfIdfVectorizer::idf(std::vector<std::map<std::str
     {
         /*Ordered set, reversed order by value*/
         std::set<std::pair<int, std::string>> temp_idf;
-        for (auto const& x : this->idf_)
+        for (auto const &x : this->idf_)
         {
-            std::pair<int, std::string> elem (x.second, x.first);
+            std::pair<int, std::string> elem(x.second, x.first);
             temp_idf.insert(elem);
         }
 
@@ -120,7 +120,7 @@ std::map<std::string, double> TfIdfVectorizer::idf(std::vector<std::map<std::str
         for (rit = temp_idf.rbegin(); rit != temp_idf.rend(); rit++)
         {
             if (i == this->max_features)
-                break; 
+                break;
             this->idf_[rit->second] = rit->first;
             this->vocabulary_[rit->second] = i;
             i++;
@@ -129,7 +129,7 @@ std::map<std::string, double> TfIdfVectorizer::idf(std::vector<std::map<std::str
     return this->idf_;
 }
 
-std::vector<std::map<std::string, double>> TfIdfVectorizer::tf(std::vector<std::vector<std::string>>& documents_tokenised)
+std::vector<std::map<std::string, double>> TfIdfVectorizer::tf(std::vector<std::vector<std::string>> &documents_tokenised)
 {
     std::vector<std::map<std::string, double>> documents_word_frequency;
     std::string word;
@@ -142,28 +142,28 @@ std::vector<std::map<std::string, double>> TfIdfVectorizer::tf(std::vector<std::
             word = documents_tokenised[d][w];
             documents_word_frequency[d][word] += 1;
         }
-        for (auto& s : documents_word_frequency[d])
+        for (auto &s : documents_word_frequency[d])
         {
-            if(this->binary) // If True, all non-zero term counts are set to 1. 
+            if (this->binary) // If True, all non-zero term counts are set to 1.
                 documents_word_frequency[d][s.first] = (documents_word_frequency[d][s.first] > 0) ? 1 : 0;
             else // Computes tf dividing term count by doc size.
             {
                 documents_word_frequency[d][s.first] /= documents_tokenised[d].size();
-                if(this->sublinear_tf)
+                if (this->sublinear_tf)
                     documents_word_frequency[d][s.first] = 1 + std::log(documents_word_frequency[d][s.first]);
             }
-        } 
+        }
     }
     return documents_word_frequency;
 }
 
-TfIdfVectorizer::matrix TfIdfVectorizer::fit_transform(std::vector<std::string>& documents)
+TfIdfVectorizer::matrix TfIdfVectorizer::fit_transform(std::vector<std::string> &documents)
 {
     fit(documents);
     return transform(documents);
 }
 
-TfIdfVectorizer::matrix TfIdfVectorizer::transform(std::vector<std::string>& documents)
+TfIdfVectorizer::matrix TfIdfVectorizer::transform(std::vector<std::string> &documents)
 {
     std::vector<std::vector<std::string>> documents_tokenised = tokenise_documents(documents);
     std::vector<std::map<std::string, double>> documents_word_counts = tf(documents_tokenised);
@@ -176,7 +176,7 @@ TfIdfVectorizer::matrix TfIdfVectorizer::transform(std::vector<std::string>& doc
     for (size_t d = 0; d < documents.size(); d++)
     {
         tf_hash = documents_word_counts[d];
-        for (auto& s : this->idf_)
+        for (auto &s : this->idf_)
         {
             word = s.first;
             w = this->vocabulary_[word];
@@ -204,6 +204,60 @@ TfIdfVectorizer::matrix TfIdfVectorizer::transform(std::vector<std::string>& doc
     return X_transformed;
 }
 
+std::vector<std::pair<std::string, std::string>> load_csv(const std::string &path_file)
+{
+    std::vector<std::string> result;
+    std::string line;
+
+    std::ifstream file(path_file);
+
+    while (std::getline(file, line))
+    {
+        auto index = line.find(',');
+        std::pair<std::string, std::string> keyVal;
+        if (index != std::string::npos)
+        {
+            keyVal = std::make_pair(line.substr(0, index), line.substr(index + 1));
+            result.push_back(keyVal);
+        }
+        else
+            throw new std::runtime_error("file is not a csv format");
+    }
+    return result;
+}
+
+void load_model(const std::string &path_directory)
+{
+    std::map<std::string, double> idf;
+    std::vector<std::pair<std::string, std::string>> idf_data = load_csv(path_directory + idf_name_file);
+    for (auto i = 0; i != idf_data.size(); ++i)
+    {
+        idf.insert({idf_data[i]].first, std::stod(idf_data[i].second)})
+    }
+    idf_ = idf;
+
+    std::map<std::string, size_t> vocabulary;
+    std::vector<std::pair<std::string, std::string>> vocabulary_data = load_csv(path_directory + vocabulary_tfidf_name_file);
+    for (auto i = 0; i != vocabulary_data.size(); ++i)
+    {
+        idf.insert({vocabulary_data[i].first, std::stoul(vocabulary_data[i].second)})
+    }
+    vocabulary_ = vocabulary;
+
+    std::vector<std::pair<std::string, std::string>> params_data = load_csv(path_directory + params_tfidf_name_file);
+    for (auto i = 0; i != params_data.size(); ++i)
+    {
+        if(params_data[i].first == "max_features")
+        {
+            max_features = std::stoi(params_data[i].second);
+        }
+        else if(params_data[i].first == "use_idf")
+        {
+            use_idf = std::stoi(params[i].second);
+        }
+    }
+    
+}
 
 std::map<std::string, double> TfIdfVectorizer::get_idf_()
 {

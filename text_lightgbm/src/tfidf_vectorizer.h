@@ -70,10 +70,14 @@ class TfIdfVectorizer
          */
         matrix fit_transform(std::vector<std::string>& documents);
 
+
+        void load_model(const std::string& path_directory);
+
         std::map<std::string, double> get_idf_();
         std::map<std::string, size_t> get_vocabulary_();
 
     protected:
+        std::vector<std::string> load_csv(const std::string& path_file);
         std::vector<std::string> tokenise_document(std::string& document);
         std::vector<std::vector<std::string>> tokenise_documents(std::vector<std::string>& documents);
         std::vector<std::map<std::string, int>> word_count(std::vector<std::vector<std::string>>& documents_tokenised);
@@ -89,6 +93,10 @@ class TfIdfVectorizer
         bool lowercase;
         bool use_idf;
         bool sublinear_tf;
+
+        const std::string idf_name_file = "tfidf_idf.csv";
+        const std::string params_tfidf_name_file = "tfidf_idf.csv";
+        const std::string vocabulary_tfidf_name_file = "tfidf_idf.csv";
 };
 
 #endif
