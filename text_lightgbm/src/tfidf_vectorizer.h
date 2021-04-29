@@ -21,7 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 class TfIdfVectorizer
 {
     public:
-        using matrix = std::vector<std::vector<float>>;
+        using matrix = std::vector<std::vector<double>>;
         /**
          * Constructor.
          * 
@@ -59,6 +59,8 @@ class TfIdfVectorizer
          */
         matrix transform(std::vector<std::string>& documents);
 
+        std::vector<std::pair<int, double>> convert(std::vector<double> &vector);
+
         /**
          * Fit, followed by transform over the same argument.
          * 
@@ -95,8 +97,8 @@ class TfIdfVectorizer
         bool sublinear_tf;
 
         const std::string idf_name_file = "tfidf_idf.csv";
-        const std::string params_tfidf_name_file = "tfidf_idf.csv";
-        const std::string vocabulary_tfidf_name_file = "tfidf_idf.csv";
+        const std::string params_tfidf_name_file = "tfidf_params.csv";
+        const std::string vocabulary_tfidf_name_file = "tfidf_vocabulary.csv";
 };
 
 #endif

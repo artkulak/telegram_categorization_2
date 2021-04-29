@@ -38,7 +38,7 @@ namespace LightGBM
                 std::unordered_map<std::string, std::string> params;
 
                 params.insert({"task", "predict"});
-                params.insert({"data", "../data/test_for_c++_inference.csv"});
+                params.insert({"data", "../data/test_preprocess_data_without_label.csv"});
                 params.insert({"input_model", model_name.path()});
                 configs_params.push_back(params);
             }

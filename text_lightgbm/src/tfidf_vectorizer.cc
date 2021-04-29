@@ -12,6 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <onmt/Tokenizer.h>
 #include <fstream>
+#include <sstream>
+#include <algorithm>
+#include <cctype>
 
 TfIdfVectorizer::TfIdfVectorizer(bool binary, bool lowercase, bool use_idf, int max_features, std::string norm, bool sublinear_tf)
 {
@@ -169,8 +172,7 @@ TfIdfVectorizer::matrix TfIdfVectorizer::transform(std::vector<std::string> &doc
 {
     std::vector<std::vector<std::string>> documents_tokenised = tokenise_documents(documents);
     std::vector<std::map<std::string, double>> documents_word_counts = tf(documents_tokenised);
-    matrix X_transformed = matrix(this->vocabulary_.size(), std::vector<float>(documents.size()));
-
+    matrix X_transformed = matrix(this->vocabulary_.size(), std::vector<double>(documents.size(), 0.0));
     std::map<std::string, double> tf_hash;
     std::string word;
     size_t w;
@@ -184,9 +186,13 @@ TfIdfVectorizer::matrix TfIdfVectorizer::transform(std::vector<std::string> &doc
             w = this->vocabulary_[word];
             idf = s.second;
             if (this->use_idf)
+            {
                 X_transformed[w][d] = tf_hash[word] * idf;
+            }
             else
+            {
                 X_transformed[w][d] = (tf_hash[word] > 0) ? 1 : 0;
+            }
         }
     }
 
@@ -204,6 +210,16 @@ TfIdfVectorizer::matrix TfIdfVectorizer::transform(std::vector<std::string> &doc
         }
     }
     return X_transformed;
+}
+
+std::vector<std::pair<int, double>> TfIdfVectorizer::convert(std::vector<double> &vector)
+{
+    std::vector<std::pair<int, double>> results;
+    for (auto i = 0; i != vector.size(); ++i)
+    {
+        results.push_back(std::make_pair(i, vector[i]));
+    }
+    return results;
 }
 
 std::vector<std::pair<std::string, std::string>> TfIdfVectorizer::load_csv(const std::string &path_file)
@@ -234,7 +250,7 @@ void TfIdfVectorizer::load_model(const std::string &path_directory)
     std::vector<std::pair<std::string, std::string>> idf_data = load_csv(path_directory + idf_name_file);
     for (auto i = 0; i != idf_data.size(); ++i)
     {
-        idf.insert({idf_data[i].first, std::stod(idf_data[i].second)});
+        idf_.insert({idf_data[i].first, std::stod(idf_data[i].second)});
     }
     idf_ = idf;
 
@@ -242,23 +258,24 @@ void TfIdfVectorizer::load_model(const std::string &path_directory)
     std::vector<std::pair<std::string, std::string>> vocabulary_data = load_csv(path_directory + vocabulary_tfidf_name_file);
     for (auto i = 0; i != vocabulary_data.size(); ++i)
     {
-        idf.insert({vocabulary_data[i].first, std::stoul(vocabulary_data[i].second)});
+        vocabulary.insert({vocabulary_data[i].first, std::stoul(vocabulary_data[i].second)});
     }
     vocabulary_ = vocabulary;
 
     std::vector<std::pair<std::string, std::string>> params_data = load_csv(path_directory + params_tfidf_name_file);
     for (auto i = 0; i != params_data.size(); ++i)
     {
-        if(params_data[i].first == "max_features")
+        if (params_data[i].first == "max_features")
         {
             max_features = std::stoi(params_data[i].second);
         }
-        else if(params_data[i].first == "use_idf")
+        else if (params_data[i].first == "use_idf")
         {
-            use_idf = std::stoi(params_data[i].second);
+            std::transform(params_data[i].second.begin(), params_data[i].second.end(), params_data[i].second.begin(), ::tolower);
+            std::istringstream is(params_data[i].second);
+            is >> std::boolalpha >> use_idf;
         }
     }
-    
 }
 
 std::map<std::string, double> TfIdfVectorizer::get_idf_()
