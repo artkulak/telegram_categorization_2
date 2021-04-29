@@ -11,6 +11,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include "tfidf_vectorizer.h"
 
 #include <onmt/Tokenizer.h>
+
+
 #include <fstream>
 #include <sstream>
 #include <algorithm>
@@ -177,6 +179,7 @@ TfIdfVectorizer::matrix TfIdfVectorizer::transform(std::vector<std::string> &doc
     std::string word;
     size_t w;
     double idf;
+
     for (size_t d = 0; d < documents.size(); d++)
     {
         tf_hash = documents_word_counts[d];
@@ -195,7 +198,6 @@ TfIdfVectorizer::matrix TfIdfVectorizer::transform(std::vector<std::string> &doc
             }
         }
     }
-
     /*Normalize vectors.*/
     if (this->p != 0)
     {
@@ -250,7 +252,7 @@ void TfIdfVectorizer::load_model(const std::string &path_directory)
     std::vector<std::pair<std::string, std::string>> idf_data = load_csv(path_directory + idf_name_file);
     for (auto i = 0; i != idf_data.size(); ++i)
     {
-        idf_.insert({idf_data[i].first, std::stod(idf_data[i].second)});
+        idf.insert({idf_data[i].first, std::stod(idf_data[i].second)});
     }
     idf_ = idf;
 
