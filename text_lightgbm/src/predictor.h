@@ -178,60 +178,67 @@ namespace LightGBM
             std::vector<int> feature_remapper(num_features, -1);
             bool need_adjust = false;
 
-            std::string line;
-            std::ifstream file(data_filename);
-
             std::vector<std::string> result_to_write;
-            while (std::getline(file, line))
-            {
+            TextReader<data_size_t> predict_data_reader(data_filename, header);
 
-                // function for parse data
-                std::function<void(const char *, std::vector<std::pair<int, double>> &)> parser_fun;
-                parser_fun = [&feature_remapper, need_adjust, &vectorizer](const char *buffer, std::vector<std::pair<int, double>> &feature) {
-                    auto temp = std::vector<std::string>({buffer});
-                    std::vector<double> features_vec = vectorizer.transform(temp).front();
-                    feature = vectorizer.convert(features_vec);
+            // function for parse data
+            std::function<void(const char *, std::vector<std::pair<int, double>> &)> parser_fun;
+            parser_fun = [&feature_remapper, need_adjust, &vectorizer](const char *buffer, std::vector<std::pair<int, double>> &feature) {
+                auto temp = std::vector<std::string>({buffer});
+                std::vector<double> features_vec = vectorizer.transform(temp).front();
+                feature = vectorizer.convert(features_vec);
 
-                    features_vec.shrink_to_fit();
-                    temp.shrink_to_fit();
+                features_vec.shrink_to_fit();
+                temp.shrink_to_fit();
 
-                    if (need_adjust)
+                if (need_adjust)
+                {
+                    int i = 0, j = static_cast<int>(feature.size());
+                    while (i < j)
                     {
-                        int i = 0, j = static_cast<int>(feature.size());
-                        while (i < j)
+                        if (feature_remapper[feature[i].first] >= 0)
                         {
-                            if (feature_remapper[feature[i].first] >= 0)
-                            {
-                                feature[i].first = feature_remapper[feature[i].first];
-                                ++i;
-                            }
-                            else
-                            {
-                                // move the non-used features to the end of the feature vector
-                                std::swap(feature[i], feature[--j]);
-                            }
+                            feature[i].first = feature_remapper[feature[i].first];
+                            ++i;
                         }
-                        feature.resize(i);
+                        else
+                        {
+                            // move the non-used features to the end of the feature vector
+                            std::swap(feature[i], feature[--j]);
+                        }
+                    }
+                    feature.resize(i);
+                }
+            };
+
+            std::function<void(data_size_t, const std::vector<std::string> &)>
+                process_fun = [&parser_fun, &writer, this](
+                                  data_size_t, const std::vector<std::string> &lines) {
+                    std::vector<std::pair<int, double>> oneline_features;
+                    std::vector<std::string> result_to_write(lines.size());
+                    OMP_INIT_EX();
+#pragma omp parallel for schedule(static) firstprivate(oneline_features)
+                    for (data_size_t i = 0; i < static_cast<data_size_t>(lines.size()); ++i)
+                    {
+                        OMP_LOOP_EX_BEGIN();
+                        oneline_features.clear();
+                        // parser
+                        parser_fun(lines[i].c_str(), oneline_features);
+                        // predict
+                        std::vector<double> result(num_pred_one_row_);
+                        predict_fun_(oneline_features, result.data());
+                        auto str_result = Common::Join<double>(result, "\t");
+                        result_to_write[i] = str_result;
+                        OMP_LOOP_EX_END();
+                    }
+                    OMP_THROW_EX();
+                    for (data_size_t i = 0; i < static_cast<data_size_t>(result_to_write.size()); ++i)
+                    {
+                        writer->Write(result_to_write[i].c_str(), result_to_write[i].size());
+                        writer->Write("\n", 1);
                     }
                 };
-
-                std::vector<std::pair<int, double>> oneline_features;
-                oneline_features.clear();
-                // parser
-                parser_fun(line.c_str(), oneline_features);
-                // predict
-                std::vector<double> result(num_pred_one_row_);
-
-                predict_fun_(oneline_features, result.data());
-                auto str_result = Common::Join<double>(result, "\t");
-                result_to_write.push_back(str_result);
-                
-            }
-            for (data_size_t i = 0; i < static_cast<data_size_t>(result_to_write.size()); ++i)
-            {
-                writer->Write(result_to_write[i].c_str(), result_to_write[i].size());
-                writer->Write("\n", 1);
-            }
+            predict_data_reader.ReadAllAndProcessParallel(process_fun);
         }
 
     private:
