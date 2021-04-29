@@ -184,12 +184,7 @@ namespace LightGBM
             // function for parse data
             std::function<void(const char *, std::vector<std::pair<int, double>> &)> parser_fun;
             parser_fun = [&feature_remapper, need_adjust, &vectorizer](const char *buffer, std::vector<std::pair<int, double>> &feature) {
-                auto temp = std::vector<std::string>({buffer});
-                std::vector<double> features_vec = vectorizer.transform(temp).front();
-                feature = vectorizer.convert(features_vec);
-
-                features_vec.shrink_to_fit();
-                temp.shrink_to_fit();
+                feature = vectorizer.transform_line(buffer);
 
                 if (need_adjust)
                 {

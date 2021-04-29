@@ -44,10 +44,10 @@ namespace LightGBM
             }
         }
 
-        for (auto i = configs_params.begin(); i != configs_params.end(); ++i)
+        for (auto i = 0; i != configs_params.size(); ++i)
         {
             Config config;
-            config.Set(*i);
+            config.Set(configs_params[i]);
             config_.push_back(config);
         }
 
@@ -86,10 +86,10 @@ namespace LightGBM
 
     void ApplicationLightGBM::InitPredict()
     {
-        for (auto i = config_.begin(); i != config_.end(); ++i)
+        for (auto i = 0; i != config_.size(); ++i)
         {
             std::shared_ptr<Boosting> boosting;
-            boosting.reset(Boosting::CreateBoosting("gbdt", i->input_model.c_str()));
+            boosting.reset(Boosting::CreateBoosting("gbdt", config_[i].input_model.c_str()));
             boosting_.push_back(boosting);
         }
         Log::Info("Finished initializing prediction, total used %d iterations", boosting_.front()->GetCurrentIteration());

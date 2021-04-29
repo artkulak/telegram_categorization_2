@@ -11,8 +11,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include "tfidf_vectorizer.h"
 
 #include <onmt/Tokenizer.h>
-
-
 #include <fstream>
 #include <sstream>
 #include <algorithm>
@@ -182,19 +180,24 @@ TfIdfVectorizer::matrix TfIdfVectorizer::transform(std::vector<std::string> &doc
 
     for (size_t d = 0; d < documents.size(); d++)
     {
+
         tf_hash = documents_word_counts[d];
         for (auto &s : this->idf_)
         {
             word = s.first;
-            w = this->vocabulary_[word];
-            idf = s.second;
-            if (this->use_idf)
+            if(this->vocabulary_.find(word) != this->vocabulary_.end())
             {
-                X_transformed[w][d] = tf_hash[word] * idf;
-            }
-            else
-            {
-                X_transformed[w][d] = (tf_hash[word] > 0) ? 1 : 0;
+                w = this->vocabulary_[word];
+                idf = s.second;
+                if (this->use_idf)
+                {
+                    X_transformed[w][d] = tf_hash[word] * idf;
+                }
+                else
+                {
+                    X_transformed[w][d] = (tf_hash[word] > 0) ? 1 : 0;
+                }
+
             }
         }
     }
@@ -214,15 +217,50 @@ TfIdfVectorizer::matrix TfIdfVectorizer::transform(std::vector<std::string> &doc
     return X_transformed;
 }
 
-std::vector<std::pair<int, double>> TfIdfVectorizer::convert(std::vector<double> &vector)
+std::vector<std::pair<int, double>> TfIdfVectorizer::transform_line(std::string document)
 {
-    std::vector<std::pair<int, double>> results;
-    for (auto i = 0; i != vector.size(); ++i)
+    std::vector<std::string> document_tokenised = tokenise_document(document);
+    std::vector<std::vector<std::string>> temp({document_tokenised});
+    std::map<std::string, double> documents_word_counts = tf(temp).front();
+    std::vector<std::pair<int, double>> X_transformed = std::vector<std::pair<int, double>>(this->vocabulary_.size(), std::make_pair(0, 0.0));
+    std::string word;
+    size_t w;
+    double idf;
+
+    for (auto &s : this->idf_)
     {
-        results.push_back(std::make_pair(i, vector[i]));
+        word = s.first;
+        if(this->vocabulary_.find(word) != this->vocabulary_.end())
+        {
+            w = this->vocabulary_[word];
+            idf = s.second;
+            if (this->use_idf)
+            {
+                X_transformed[w].second = documents_word_counts[word] * idf;
+            }
+            else
+            {
+                X_transformed[w].second = (documents_word_counts[word] > 0) ? 1 : 0;
+            }
+        }
     }
-    return results;
+    
+    if (this->p != 0)
+    {
+        double norm = 0;
+        for (size_t r = 0; r < X_transformed.size(); r++)
+        {
+            norm += std::pow(X_transformed[r].second, this->p);
+            X_transformed[r].first = r;
+        }   
+        norm = std::sqrt(norm);
+        for (size_t r = 0; r < X_transformed.size(); r++)
+            X_transformed[r].second /= norm;
+    }
+    return X_transformed;
 }
+
+
 
 std::vector<std::pair<std::string, std::string>> TfIdfVectorizer::load_csv(const std::string &path_file)
 {

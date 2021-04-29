@@ -59,7 +59,7 @@ class TfIdfVectorizer
          */
         matrix transform(std::vector<std::string>& documents);
 
-        std::vector<std::pair<int, double>> convert(std::vector<double> &vector);
+        std::vector<std::pair<int, double>> transform_line(std::string documents);
 
         /**
          * Fit, followed by transform over the same argument.
