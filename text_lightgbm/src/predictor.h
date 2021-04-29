@@ -175,35 +175,13 @@ namespace LightGBM
             auto label_idx = header ? -1 : boosting_->LabelIdx();
             auto num_features = vectorizer.get_vocabulary_().size();
 
-            std::vector<int> feature_remapper(num_features, -1);
-            bool need_adjust = false;
-
             std::vector<std::string> result_to_write;
             TextReader<data_size_t> predict_data_reader(data_filename, header);
 
             // function for parse data
             std::function<void(const char *, std::vector<std::pair<int, double>> &)> parser_fun;
-            parser_fun = [&feature_remapper, need_adjust, &vectorizer](const char *buffer, std::vector<std::pair<int, double>> &feature) {
+            parser_fun = [&vectorizer](const char *buffer, std::vector<std::pair<int, double>> &feature) {
                 feature = vectorizer.transform_line(buffer);
-
-                if (need_adjust)
-                {
-                    int i = 0, j = static_cast<int>(feature.size());
-                    while (i < j)
-                    {
-                        if (feature_remapper[feature[i].first] >= 0)
-                        {
-                            feature[i].first = feature_remapper[feature[i].first];
-                            ++i;
-                        }
-                        else
-                        {
-                            // move the non-used features to the end of the feature vector
-                            std::swap(feature[i], feature[--j]);
-                        }
-                    }
-                    feature.resize(i);
-                }
             };
 
             std::function<void(data_size_t, const std::vector<std::string> &)>
