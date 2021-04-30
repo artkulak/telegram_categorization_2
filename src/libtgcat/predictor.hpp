@@ -1,7 +1,7 @@
 #ifndef PREDICTOR_HPP
 #define PREDICTOR_HPP
 
-#include "text_lightgbm/src/application.h"
+#include "./text_lightgbm/src/application.h"
 
 class Predictor final {
 public:
