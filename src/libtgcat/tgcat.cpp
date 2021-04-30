@@ -46,7 +46,7 @@ static void populate_category_probabilites(const std::vector<std::pair<real, std
   for (auto [probability, label] : predictions)
   {
     probability /= sum;
-    label = label.substr(9); // skip __label__
+    //label = label.substr(9); // skip __label__
     const auto index = std::stoi(label);
     category_probability[index] = probability;
   }

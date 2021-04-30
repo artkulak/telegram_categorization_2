@@ -165,53 +165,12 @@ namespace LightGBM
             return predict_sparse_fun_;
         }
 
-        void Predict(const char *data_filename, const char *result_filename, TfIdfVectorizer &vectorizer, bool header, bool disable_shape_check)
+        float Predict(const char *line, TfIdfVectorizer &vectorizer)
         {
-            auto writer = VirtualFileWriter::Make(result_filename);
-            if (!writer->Init())
-            {
-                Log::Fatal("Prediction results file %s cannot be found", result_filename);
-            }
-            auto label_idx = header ? -1 : boosting_->LabelIdx();
-            auto num_features = vectorizer.get_vocabulary_().size();
-
-            std::vector<std::string> result_to_write;
-            TextReader<data_size_t> predict_data_reader(data_filename, header);
-
-            // function for parse data
-            std::function<void(const char *, std::vector<std::pair<int, double>> &)> parser_fun;
-            parser_fun = [&vectorizer](const char *buffer, std::vector<std::pair<int, double>> &feature) {
-                feature = vectorizer.transform_line(buffer);
-            };
-
-            std::function<void(data_size_t, const std::vector<std::string> &)>
-                process_fun = [&parser_fun, &writer, this](
-                                  data_size_t, const std::vector<std::string> &lines) {
-                    std::vector<std::pair<int, double>> oneline_features;
-                    std::vector<std::string> result_to_write(lines.size());
-                    OMP_INIT_EX();
-#pragma omp parallel for schedule(static) firstprivate(oneline_features)
-                    for (data_size_t i = 0; i < static_cast<data_size_t>(lines.size()); ++i)
-                    {
-                        OMP_LOOP_EX_BEGIN();
-                        oneline_features.clear();
-                        // parser
-                        parser_fun(lines[i].c_str(), oneline_features);
-                        // predict
-                        std::vector<double> result(num_pred_one_row_);
-                        predict_fun_(oneline_features, result.data());
-                        auto str_result = Common::Join<double>(result, "\t");
-                        result_to_write[i] = str_result;
-                        OMP_LOOP_EX_END();
-                    }
-                    OMP_THROW_EX();
-                    for (data_size_t i = 0; i < static_cast<data_size_t>(result_to_write.size()); ++i)
-                    {
-                        writer->Write(result_to_write[i].c_str(), result_to_write[i].size());
-                        writer->Write("\n", 1);
-                    }
-                };
-            predict_data_reader.ReadAllAndProcessParallel(process_fun);
+            std::vector<std::pair<int, double>> feature = vectorizer.transform_line(line);
+            std::vector<double> result(1);
+            predict_fun_(feature, result.data());
+            return static_cast<float>(result.front());
         }
 
     private:

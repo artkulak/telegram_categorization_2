@@ -38,7 +38,7 @@ namespace LightGBM
                 std::unordered_map<std::string, std::string> params;
 
                 params.insert({"task", "predict"});
-                params.insert({"data", "../data/test_preprocess_data_without_label.csv"});
+                //params.insert({"data", "../data/test_preprocess_data_without_label.csv"});
                 params.insert({"input_model", model_name.path()});
                 configs_params.push_back(params);
             }
@@ -59,29 +59,24 @@ namespace LightGBM
         {
             omp_set_num_threads(first_config_.num_threads);
         }
-        if (first_config_.data.size() == 0 && first_config_.task != TaskType::kConvertModel)
-        {
-            Log::Fatal("prediction data, application quit");
-        }
     }
 
-    void ApplicationLightGBM::Predict()
+    std::vector<std::pair<float, std::string>> ApplicationLightGBM::Predict(std::string& line)
     {
-        if (first_config_.data.size() == 0 && first_config_.task != TaskType::kConvertModel)
-        {
-            Log::Fatal("No prediction data, ApplicationLightGBM quit");
-        }
+        std::vector<std::pair<float, std::string>> result(boosting_.size());
         for (auto i = 0; i != boosting_.size(); ++i)
         {
+            float probality;
+            std::string label = std::to_string(i);
             // create predictor
             Predictor predictor(boosting_[i].get(), first_config_.start_iteration_predict, first_config_.num_iteration_predict, first_config_.predict_raw_score,
                                 first_config_.predict_leaf_index, first_config_.predict_contrib,
                                 first_config_.pred_early_stop, first_config_.pred_early_stop_freq,
                                 first_config_.pred_early_stop_margin);
-            predictor.Predict(first_config_.data.c_str(),
-                              (first_config_.output_result + std::to_string(i) + ".txt").c_str(), vectorizer_, first_config_.header, first_config_.predict_disable_shape_check);
+            probality = predictor.Predict(line.c_str(), vectorizer_);
+            result.push_back({probality, label});
         }
-        Log::Info("Finished prediction");
+        return result;
     }
 
     void ApplicationLightGBM::InitPredict()

@@ -30,9 +30,9 @@ namespace LightGBM
 
     void LoadModel(const std::string& model_path);
 
+    std::vector<std::pair<float, std::string>> Predict(std::string& line);
+    
     void InitPredict();
-
-    void Predict();
     
   private:
     Config first_config_;
