@@ -4,3 +4,6 @@
 [submodule "resources/Tokenizer"]
 	path = resources/Tokenizer
 	url = https://github.com/OpenNMT/Tokenizer
+[submodule "resources/fastText"]
+	path = resources/fastText
+	url = https://github.com/facebookresearch/fastText
