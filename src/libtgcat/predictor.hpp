@@ -1,7 +1,8 @@
 #ifndef PREDICTOR_HPP
 #define PREDICTOR_HPP
 
-#include "./text_lightgbm/src/application.h"
+#include "../../resources/fastText/src/fasttext.h"
+using namespace fasttext;
 
 class Predictor final {
 public:
@@ -12,7 +13,7 @@ public:
 
 private:
   std::string _name{"Predictor"};
-  LightGBM::ApplicationLightGBM _lightgbm;
+  FastText    _ft;
 
   bool loadModel(const std::string& path) noexcept;
 };

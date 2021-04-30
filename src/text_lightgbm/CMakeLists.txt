@@ -13,18 +13,22 @@ if(USE_OPENMP)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif(USE_OPENMP)
 
-
 add_library(_lightgbm SHARED IMPORTED)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../../resources/LightGBM/include)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../../resources/Tokenizer/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../../resources/Tokenizer/build/onmt)
+set_target_properties(_lightgbm PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/../../resources/LightGBM/include/"
+    IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/../../resources/LightGBM/lib_lightgbm.so"
+)
 
-add_library(text_lightgbm SHARED src/application.cpp src/tfidf_vectorizer.cc)
-target_include_directories(text_lightgbm PRIVATE src)
+add_library(_omt_tokenizer SHARED IMPORTED)
+set_target_properties(_omt_tokenizer PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/../../resources/Tokenizer/include"
+    INTERFACE_INCLUDE_EXPORT "${CMAKE_SOURCE_DIR}/../../resources/Tokenizer/build/onmt"
+    IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/../../resources/Tokenizer/build/libOpenNMTTokenizer.so"
+)
 
-target_link_libraries(text_lightgbm "${CMAKE_SOURCE_DIR}/../../../resources/LightGBM/lib_lightgbm.so")
-target_link_libraries(text_lightgbm "${CMAKE_SOURCE_DIR}/../../../resources/Tokenizer/build/libOpenNMTTokenizer.so")
+add_library(text_lightgbm SHARED application.cpp tfidf_vectorizer.cc)
+#target_include_directories(text_lightgbm PRIVATE .)
 
-install(TARGETS text_lightgbm LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+target_link_libraries(text_lightgbm _lightgbm)
+target_link_libraries(text_lightgbm _omt_tokenizer)

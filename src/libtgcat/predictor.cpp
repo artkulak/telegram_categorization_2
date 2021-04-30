@@ -13,14 +13,13 @@ std::vector<std::pair<real, std::string>>
 Predictor::predict(const std::string& data, const int32_t k, const real threshold) noexcept {
   std::istringstream iss{data};
   std::vector<std::pair<real, std::string>> predictions;
-  //need redefenition
-  _lightgbm.predictLine(iss, predictions, k, threshold);
+  _ft.predictLine(iss, predictions, k, threshold);
   return predictions;
 }
 
 bool Predictor::loadModel(const std::string& path) noexcept {
   try {
-    _lightgbm.loadModel(path);
+    _ft.loadModel(path);
   } catch (const std::exception& ex) {
     std::cerr << _name
               << " | Exception: Unable to load model! [" << path << "] "
