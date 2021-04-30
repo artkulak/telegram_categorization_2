@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 OPTION(USE_OPENMP "Enable OpenMP" ON)
 
-project(text_lightgbm VERSION 1.0.0)
+project(_text_lightgbm VERSION 1.0.0)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 if(USE_DEBUG)
@@ -27,8 +27,11 @@ set_target_properties(_omt_tokenizer PROPERTIES
     IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/../../resources/Tokenizer/build/libOpenNMTTokenizer.so"
 )
 
-add_library(text_lightgbm SHARED application.cpp tfidf_vectorizer.cc)
+add_library(_text_lightgbm SHARED application.cpp tfidf_vectorizer.cc)
+add_executable(text_lightgbm main.cpp application.cpp tfidf_vectorizer.cc)
 #target_include_directories(text_lightgbm PRIVATE .)
 
-target_link_libraries(text_lightgbm _lightgbm)
-target_link_libraries(text_lightgbm _omt_tokenizer)
+target_link_libraries(_text_lightgbm _lightgbm _omt_tokenizer)
+
+target_link_libraries(text_lightgbm _lightgbm _omt_tokenizer)
+
