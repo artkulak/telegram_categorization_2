@@ -10,8 +10,8 @@ static constexpr auto Russian = "ru";
 
 namespace Language::Model {
 static constexpr auto language = "../../models/sl_language";
-static constexpr auto category_en = "../../models/sl_category_en";
-static constexpr auto category_ru = "../../models/sl_category_ru";
+static constexpr auto category_en = "../../models/en";
+static constexpr auto category_ru = "../../models/ru";
 } // Language::Model
 
 namespace Randomized {

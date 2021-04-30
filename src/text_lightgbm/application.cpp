@@ -28,7 +28,7 @@ namespace LightGBM
         }
     }
 
-    void ApplicationLightGBM::LoadModel(const std::string models_path)
+    void ApplicationLightGBM::LoadModel(const std::string& models_path)
     {
         std::vector<std::unordered_map<std::string, std::string>> configs_params;
         for (const auto &model_name : std::filesystem::directory_iterator(models_path))

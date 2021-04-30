@@ -28,7 +28,7 @@ namespace LightGBM
 
     ~ApplicationLightGBM();
 
-    void LoadModel(const std::string model_path);
+    void LoadModel(const std::string& model_path);
 
     void InitPredict();
 
