@@ -7,17 +7,23 @@
 using Indices = std::set<std::size_t>;
 
 Indices get_random_indices(const std::size_t post_count,
-                           const std::size_t threshold) noexcept {
+                           const std::size_t threshold) noexcept
+{
   Indices numbers;
-  if (post_count < threshold) {
-    for (std::size_t i{0}; i != post_count; ++i) {
+  if (post_count < threshold)
+  {
+    for (std::size_t i{0}; i != post_count; ++i)
+    {
       numbers.emplace(i);
     }
-  } else {
+  }
+  else
+  {
     static std::random_device rd;
     static std::mt19937 gen(rd());
-    std::uniform_int_distribution<std::size_t> distrib(0, post_count-1);
-    while (numbers.size() != threshold) {
+    std::uniform_int_distribution<std::size_t> distrib(0, post_count - 1);
+    while (numbers.size() != threshold)
+    {
       numbers.emplace(distrib(gen));
     }
   }

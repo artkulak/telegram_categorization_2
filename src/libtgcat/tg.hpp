@@ -7,24 +7,29 @@
 #include "predictor.hpp"
 #include <memory>
 
-struct tgcat_manager_s {
+struct tgcat_manager_s
+{
   using Preprocessor_t = std::unique_ptr<Preprocessor>;
-  using Predictor_t = std::unique_ptr<Predictor>;
+  using Predictor_t = std::unique_ptr<IPredictor>;
 
-  Cache           cache;
-  Preprocessor_t  pp{nullptr};
-  Predictor_t     lp{nullptr};
-  Predictor_t     cp_en{nullptr};
-  Predictor_t     cp_ru{nullptr};
+  Cache cache;
+  Preprocessor_t pp{nullptr};
+  Predictor_t lp{nullptr};
+  Predictor_t cp_en{nullptr};
+  Predictor_t cp_ru{nullptr};
 
-  int init() noexcept {
+  int init() noexcept
+  {
     using namespace Config::Language;
-    try {
+    try
+    {
       pp = std::make_unique<Preprocessor>(Preprocessor::Mode::RELEASE);
-      lp = std::make_unique<Predictor>("Language Predictor", Model::language);
-      cp_en = std::make_unique<Predictor>("Category Predictor (en)", Model::category_en);
-      cp_ru = std::make_unique<Predictor>("Category Predictor (ru)", Model::category_ru);
-    } catch (const std::exception& ex) {
+      lp = std::make_unique<PredictorLanguage>("Language Predictor", Model::language);
+      cp_en = std::make_unique<PredictCategory>("Category Predictor (en)", Model::category_en);
+      cp_ru = std::make_unique<PredictCategory>("Category Predictor (ru)", Model::category_ru);
+    }
+    catch (const std::exception &ex)
+    {
       std::cerr << "ERROR: Initialization failed!" << std::endl;
       return -1;
     }

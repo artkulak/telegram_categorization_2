@@ -3,6 +3,7 @@
 
 #include "../../resources/fastText/src/fasttext.h"
 #include "../text_lightgbm/application.h"
+
 using namespace fasttext;
 using namespace LightGBM;
 
@@ -26,7 +27,7 @@ public:
   virtual bool loadModel(const std::string &path) noexcept;
 
 protected:
-  std::string _name{"Predictor"};
+  std::string _name{"Language predictor"};
   FastText _ft;
 };
 
@@ -41,7 +42,7 @@ public:
   virtual bool loadModel(const std::string &path) noexcept;
 
 protected:
-  std::string _name{"Predictor"};
+  std::string _name{"Category predictor"};
   ApplicationLightGBM _text_lightgbm;
 };
 
