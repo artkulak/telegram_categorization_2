@@ -61,7 +61,7 @@ namespace LightGBM
         }
     }
 
-    std::vector<std::pair<float, std::string>> ApplicationLightGBM::Predict(std::string& line)
+    std::vector<std::pair<float, std::string>> ApplicationLightGBM::Predict(const std::string& line)
     {
         std::vector<std::pair<float, std::string>> result(boosting_.size());
         for (auto i = 0; i != boosting_.size(); ++i)

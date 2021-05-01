@@ -10,7 +10,7 @@
 struct tgcat_manager_s
 {
   using Preprocessor_t = std::unique_ptr<Preprocessor>;
-  using Predictor_t = std::unique_ptr<IPredictor>;
+  using Predictor_t = std::unique_ptr<IPredict>;
 
   Cache cache;
   Preprocessor_t pp{nullptr};

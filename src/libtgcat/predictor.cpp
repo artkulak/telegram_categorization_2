@@ -47,9 +47,7 @@ PredictCategory::PredictCategory(const std::string name, const std::string model
 std::vector<std::pair<real, std::string>>
 PredictCategory::predict(const std::string &data, const int32_t k, const real threshold) noexcept
 {
-  std::istringstream iss{data};
-  _text_lightgbm.predictLine(iss, predictions, k, threshold); //////////////////// need redefine
-  return predictions;
+  return _text_lightgbm.Predict(data);
 }
 
 bool PredictCategory::loadModel(const std::string &path) noexcept
