@@ -1,0 +1,2 @@
+max_features,3000
+use_idf,True

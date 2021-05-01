@@ -2,7 +2,7 @@
 #define PREDICTOR_HPP
 
 #include "../../resources/fastText/src/fasttext.h"
-#include "../text_lightgbm/application.h"
+#include <text_lightgbm/application.h>
 
 using namespace fasttext;
 using namespace LightGBM;

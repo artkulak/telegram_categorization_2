@@ -14,7 +14,7 @@ set_target_properties(fasttext PROPERTIES
 
 add_library(text_lightgbm SHARED IMPORTED)
 set_target_properties(text_lightgbm PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/../text_lightgbm/"
+    INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/../"
     IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/../text_lightgbm/build/lib_text_lightgbm.so"
 )
 
