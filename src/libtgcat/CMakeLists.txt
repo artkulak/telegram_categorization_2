@@ -4,20 +4,14 @@ project(tgcat VERSION 1.0.0)
 
 set(CMAKE_CXX_FLAGS " -pthread -std=c++17 -funroll-loops -O3 -march=native")
 
-message("${CMAKE_SOURCE_DIR}/../text_lightgbm/")
-
 add_library(fasttext SHARED IMPORTED)
 set_target_properties(fasttext PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/../../resources/fastText/src/"
     IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/../../resources/fastText/build/libfasttext.so"
 )
 
-add_library(text_lightgbm SHARED IMPORTED)
-set_target_properties(text_lightgbm PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/../"
-    IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/../text_lightgbm/build/lib_text_lightgbm.so"
-)
+ADD_SUBDIRECTORY(text_lightgbm)
 
 add_library(tgcat SHARED tgcat.cpp preprocessor.cpp predictor.cpp)
-target_link_libraries(tgcat fasttext text_lightgbm)
+target_link_libraries(tgcat fasttext _text_lightgbm)
 

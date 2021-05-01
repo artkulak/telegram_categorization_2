@@ -29,7 +29,6 @@ set_target_properties(_omt_tokenizer PROPERTIES
 
 add_library(_text_lightgbm SHARED application.cpp tfidf_vectorizer.cc)
 add_executable(text_lightgbm main.cpp application.cpp tfidf_vectorizer.cc)
-#target_include_directories(text_lightgbm PRIVATE .)
 
 target_link_libraries(_text_lightgbm _lightgbm _omt_tokenizer)
 

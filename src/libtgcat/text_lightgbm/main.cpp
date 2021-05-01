@@ -15,7 +15,7 @@ int main(int argc, char **argv)
     try
     {
         LightGBM::ApplicationLightGBM app;
-        app.LoadModel("../../../models/ru/");
+        app.LoadModel("../../../../models/ru/");
         app.InitPredict();
         std::vector<std::pair<float, std::string>> vec = app.Predict(line);
         print_vec(vec);
