@@ -12,7 +12,7 @@ namespace Config
 
     namespace Language::Model
     {
-        static constexpr auto language = "../../models/sl_language";
+        static constexpr auto language = "../../models/sl_language/fasttext_language.ftz";
         static constexpr auto category_en = "../../models/en";
         static constexpr auto category_ru = "../../models/ru";
     } // Language::Model
