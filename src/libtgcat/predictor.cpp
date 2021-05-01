@@ -55,6 +55,7 @@ bool PredictCategory::loadModel(const std::string &path) noexcept
   try
   {
     _text_lightgbm.LoadModel(path);
+    _text_lightgbm.InitPredict();
   }
   catch (const std::exception &ex)
   {

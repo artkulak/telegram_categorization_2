@@ -50,7 +50,7 @@ namespace LightGBM
             config.Set(configs_params[i]);
             config_.push_back(config);
         }
-
+        
         vectorizer_.load_model(models_path + "/tfidf/");
 
         first_config_ = config_.front();
@@ -63,7 +63,7 @@ namespace LightGBM
 
     std::vector<std::pair<float, std::string>> ApplicationLightGBM::Predict(const std::string& line)
     {
-        std::vector<std::pair<float, std::string>> result(boosting_.size());
+        std::vector<std::pair<float, std::string>> result;
         for (auto i = 0; i != boosting_.size(); ++i)
         {
             float probality;
