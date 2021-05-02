@@ -90,29 +90,32 @@ namespace UseCase__Complete
   {
     auto data = std::string{channel_info->title};
     data += ' ' + std::string{channel_info->description};
-    const auto count = channel_info->total_post_count;
+    const auto count = channel_info->recent_post_count;
     const auto posts = channel_info->recent_posts;
-    if (is_unique)
+    if (posts != nullptr)
     {
-      std::set<std::string> unique_posts;
-      for (std::size_t i = 0; i != count; ++i)
+      if (is_unique)
       {
-        if (posts[i].text != nullptr)
+        std::set<std::string> unique_posts;
+        for (std::size_t i = 0; i != count; ++i)
         {
-          unique_posts.emplace(posts[i].text);
+          if (posts[i].text != nullptr)
+          {
+            unique_posts.emplace(posts[i].text);
+          }
+        }
+        for (const auto post : unique_posts)
+        {
+
+          data += ' ' + post;
         }
       }
-      for (const auto post : unique_posts)
+      else
       {
-
-        data += ' ' + post;
-      }
-    }
-    else
-    {
-      for (std::size_t i = 0; i != count; ++i)
-      {
-        data += ' ' + std::string{posts[i].text};
+        for (std::size_t i = 0; i != count; ++i)
+        {
+          data += ' ' + std::string{posts[i].text};
+        }
       }
     }
     return data;
@@ -150,33 +153,38 @@ namespace UseCase__Randomized
                                             Config::Randomized::posts_threshold);
     auto data = std::string{channel_info->title};
     data += ' ' + std::string{channel_info->description};
-    const auto count = channel_info->total_post_count;
+    const auto count = channel_info->recent_post_count;
     const auto posts = channel_info->recent_posts;
-    if (is_unique)
+    if (posts != nullptr)
     {
-      std::set<std::string> unique_posts;
-      for (std::size_t i = 0; i != count; ++i)
+      if (is_unique)
       {
-        if (posts[i].text != nullptr)
+        std::set<std::string> unique_posts;
+        for (std::size_t i = 0; i != count; ++i)
         {
-          unique_posts.emplace(posts[i].text);
+          if (posts[i].text != nullptr)
+          {
+            unique_posts.emplace(posts[i].text);
+          }
+        }
+        for (const auto post : unique_posts)
+        {
+          data += ' ' + post;
+        }
+        
+      }
+      else
+      {
+        for (std::size_t i = 0; i != count; ++i)
+        {
+          if (posts[i].text != nullptr)
+          {
+            data += ' ' + std::string{posts[i].text};
+          }
         }
       }
-      for (const auto post : unique_posts)
-      {
-        data += ' ' + post;
-      }
     }
-    else
-    {
-      for (std::size_t i = 0; i != count; ++i)
-      {
-        if (posts[i].text != nullptr)
-        {
-          data += ' ' + std::string{posts[i].text};
-        }
-      }
-    }
+    std::cout << "hui2" << std::endl;
     return data;
   }
 
