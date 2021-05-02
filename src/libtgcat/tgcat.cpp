@@ -184,7 +184,6 @@ namespace UseCase__Randomized
         }
       }
     }
-    std::cout << "hui2" << std::endl;
     return data;
   }
 
