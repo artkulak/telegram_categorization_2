@@ -30,9 +30,9 @@ struct tgcat_manager_s
       lp = std::make_unique<Predictor>("Language Predictor", Model::language);
       cp_en = std::make_unique<Predictor>("Category Predictor (en)", Model::category_en);
       cp_ru = std::make_unique<Predictor>("Category Predictor (ru)", Model::category_ru);
-      cp_ar = std::make_unique<Predictor>("Category Predictor (en)", Model::category_ar);
-      cp_uz = std::make_unique<Predictor>("Category Predictor (ru)", Model::category_uz);
-      cp_fa = std::make_unique<Predictor>("Category Predictor (en)", Model::category_fa);
+      cp_ar = std::make_unique<Predictor>("Category Predictor (ar)", Model::category_ar);
+      cp_uz = std::make_unique<Predictor>("Category Predictor (uz)", Model::category_uz);
+      cp_fa = std::make_unique<Predictor>("Category Predictor (fa)", Model::category_fa);
     }
     catch (const std::exception &ex)
     {

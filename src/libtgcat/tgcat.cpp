@@ -97,10 +97,14 @@ namespace UseCase__Complete
       std::set<std::string> unique_posts;
       for (std::size_t i = 0; i != count; ++i)
       {
-        unique_posts.emplace(posts[i]);
+        if (posts[i].text != nullptr)
+        {
+          unique_posts.emplace(posts[i].text);
+        }
       }
       for (const auto post : unique_posts)
       {
+
         data += ' ' + post;
       }
     }
@@ -108,7 +112,7 @@ namespace UseCase__Complete
     {
       for (std::size_t i = 0; i != count; ++i)
       {
-        data += ' ' + std::string{posts[i]};
+        data += ' ' + std::string{posts[i].text};
       }
     }
     return data;
@@ -151,9 +155,12 @@ namespace UseCase__Randomized
     if (is_unique)
     {
       std::set<std::string> unique_posts;
-      for (const auto i : indices)
+      for (std::size_t i = 0; i != count; ++i)
       {
-        unique_posts.emplace(posts[i]);
+        if (posts[i].text != nullptr)
+        {
+          unique_posts.emplace(posts[i].text);
+        }
       }
       for (const auto post : unique_posts)
       {
@@ -164,7 +171,10 @@ namespace UseCase__Randomized
     {
       for (std::size_t i = 0; i != count; ++i)
       {
-        data += ' ' + std::string{posts[i]};
+        if (posts[i].text != nullptr)
+        {
+          data += ' ' + std::string{posts[i].text};
+        }
       }
     }
     return data;
@@ -216,22 +226,28 @@ namespace UseCase__Randomized
 
 // libtgcat
 
-int tgcat_init() {
+int tgcat_init()
+{
   return tg.init();
 }
 
 int tgcat_detect_language(const struct TelegramChannelInfo *channel_info,
-                          char language_code[6]) {
-  if (channel_info->total_post_count < Config::Randomized::posts_threshold) {
+                          char language_code[6])
+{
+  if (channel_info->total_post_count < Config::Randomized::posts_threshold)
+  {
     UseCase__Complete::detect_language(channel_info, language_code);
-  } else {
+  }
+  else
+  {
     UseCase__Randomized::detect_language(channel_info, language_code);
   }
   return 0;
 }
 
 int tgcat_detect_category(const struct TelegramChannelInfo *channel_info,
-                          double category_probability[TGCAT_CATEGORY_OTHER + 1]) {
+                          double category_probability[TGCAT_CATEGORY_OTHER + 1])
+{
   detect_category(channel_info, category_probability);
   return 0;
 }
