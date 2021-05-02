@@ -9,8 +9,6 @@ set_target_properties(fasttext PROPERTIES
     IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/../../resources/fastText/build/libfasttext.so"
 )
 
-ADD_SUBDIRECTORY(text_lightgbm)
-
 add_library(tgcat SHARED tgcat.cpp preprocessor.cpp predictor.cpp)
-target_link_libraries(tgcat _text_lightgbm fasttext)
+target_link_libraries(tgcat fasttext)
 

@@ -1,12 +1,11 @@
-#ifndef TGCAT_HPP
-#define TGCAT_HPP
+#ifndef TGCAT_H
+#define TGCAT_H
 
 /**
- * Library for determining topic and main languange of Telegram channels by
- * their recent content.
+ * Library for determining topic and main language of Telegram channels.
  */
 
-#include <cstddef>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -30,6 +29,85 @@ extern "C"
   TGCAT_EXPORT int tgcat_init();
 
   /**
+ * Information about a link preview.
+ */
+  struct TelegramLinkPreview
+  {
+    /**
+   * URL of the link. A null-terminated string in UTF-8 encoding.
+   */
+    const char *url;
+
+    /**
+   * Link title. A null-terminated string in UTF-8 encoding.
+   */
+    const char *title;
+
+    /**
+   * Link description. A null-terminated string in UTF-8 encoding.
+   */
+    const char *description;
+  };
+
+  /**
+ * List of supported channel post types.
+ */
+  enum TelegramChannelPostType
+  {
+    TELEGRAM_CHANNEL_POST_TYPE_TEXT,
+    TELEGRAM_CHANNEL_POST_TYPE_PHOTO,
+    TELEGRAM_CHANNEL_POST_TYPE_VIDEO,
+    TELEGRAM_CHANNEL_POST_TYPE_MUSIC,
+    TELEGRAM_CHANNEL_POST_TYPE_FILE
+  };
+
+  /**
+ * Information about a Telegram channel post.
+ */
+  struct TelegramChannelPost
+  {
+    /**
+   * Type of the channel post.
+   */
+    enum TelegramChannelPostType type;
+
+    /**
+   * Text or caption of the channel post. A null-terminated string in UTF-8 encoding.
+   */
+    const char *text;
+
+    /**
+   * Information about a link from the text; may be null.
+   */
+    const struct TelegramLinkPreview *link_preview;
+
+    /**
+   * Size of the file. For video, music and ordinary files only.
+   */
+    size_t file_size;
+
+    /**
+   * Name of the file. For video, music and ordinary files only.
+   */
+    const char *file_name;
+
+    /**
+   * Duration of the file. For video and music files only.
+   */
+    size_t duration;
+
+    /**
+   * Title of the music file. For music files only.
+   */
+    const char *music_title;
+
+    /**
+   * Performer of the music file. For music files only.
+   */
+    const char *music_performer;
+  };
+
+  /**
  * Information about a Telegram channel.
  */
   struct TelegramChannelInfo
@@ -45,14 +123,44 @@ extern "C"
     const char *description;
 
     /**
-   * Number of available channel posts.
+   * Number of subscribers of the channel.
    */
-    size_t post_count;
+    size_t subscriber_count;
 
     /**
-   * List of post_count channel posts. Posts are null-terminated strings in UTF-8 encoding.
+   * The total number of posts in the channel.
    */
-    const char **posts;
+    size_t total_post_count;
+
+    /**
+   * Number of posted photos in the channel.
+   */
+    size_t photo_count;
+
+    /**
+   * Number of posted videos in the channel.
+   */
+    size_t video_count;
+
+    /**
+   * Number of posted music files in the channel.
+   */
+    size_t music_count;
+
+    /**
+   * Number of other posted files in the channel.
+   */
+    size_t file_count;
+
+    /**
+   * Number of available recent channel posts.
+   */
+    size_t recent_post_count;
+
+    /**
+   * List of recent_post_count channel posts.
+   */
+    struct TelegramChannelPost *recent_posts;
   };
 
   /**
@@ -81,6 +189,7 @@ extern "C"
     TGCAT_CATEGORY_CULTURE_AND_EVENTS,
     TGCAT_CATEGORY_CURIOUS_FACTS,
     TGCAT_CATEGORY_DIRECTORIES_OF_CHANNELS_AND_BOTS,
+    TGCAT_CATEGORY_DRUG_SALE,
     TGCAT_CATEGORY_ECONOMY_AND_FINANCE,
     TGCAT_CATEGORY_EDUCATION,
     TGCAT_CATEGORY_EROTIC_CONTENT,
@@ -88,6 +197,8 @@ extern "C"
     TGCAT_CATEGORY_FITNESS,
     TGCAT_CATEGORY_FOOD_AND_COOKING,
     TGCAT_CATEGORY_FOREIGN_LANGUAGE_LEARNING,
+    TGCAT_CATEGORY_FORGERY,
+    TGCAT_CATEGORY_HACKED_ACCOUNTS_AND_SOFTWARE,
     TGCAT_CATEGORY_HEALTH_AND_MEDICINE,
     TGCAT_CATEGORY_HISTORY,
     TGCAT_CATEGORY_HOBBIES_AND_ACTIVITIES,
@@ -101,69 +212,84 @@ extern "C"
     TGCAT_CATEGORY_MOVIES,
     TGCAT_CATEGORY_MUSIC,
     TGCAT_CATEGORY_OFFERS_AND_PROMOTIONS,
+    TGCAT_CATEGORY_PERSONAL_DATA,
     TGCAT_CATEGORY_PETS,
+    TGCAT_CATEGORY_PIRATED_CONTENT,
     TGCAT_CATEGORY_POLITICS_AND_INCIDENTS,
+    TGCAT_CATEGORY_PROSTITUTION,
     TGCAT_CATEGORY_PSYCHOLOGY_AND_RELATIONSHIPS,
     TGCAT_CATEGORY_REAL_ESTATE,
-    //TGCAT_CATEGORY_RECREATION_AND_ENTERTAINMENT,
+    TGCAT_CATEGORY_RECREATION_AND_ENTERTAINMENT,
     TGCAT_CATEGORY_RELIGION_AND_SPIRITUALITY,
     TGCAT_CATEGORY_SCIENCE,
+    TGCAT_CATEGORY_SPAM_AND_FAKE_FOLLOWERS,
     TGCAT_CATEGORY_SPORTS,
     TGCAT_CATEGORY_TECHNOLOGY_AND_INTERNET,
     TGCAT_CATEGORY_TRAVEL_AND_TOURISM,
     TGCAT_CATEGORY_VIDEO_GAMES,
+    TGCAT_CATEGORY_WEAPON_SALE,
     TGCAT_CATEGORY_OTHER
   };
 
   /**
  * Names of supported categories.
  */
-  const char *TGCAT_CATEGORY_NAME[] = {
-      "Art & Design",
-      "Bets & Gambling",
-      "Books",
-      "Business & Entrepreneurship",
-      "Cars & Other Vehicles",
-      "Celebrities & Lifestyle",
-      "Cryptocurrencies",
-      "Culture & Events",
-      "Curious Facts",
-      "Directories of Channels & Bots",
-      "Economy & Finance",
-      "Education",
-      "Erotic Content",
-      "Fashion & Beauty",
-      "Fitness",
-      "Food & Cooking",
-      "Foreign Language Learning",
-      "Health & Medicine",
-      "History",
-      "Hobbies & Activities",
-      "Home & Architecture",
-      "Humor & Memes",
-      "Investments",
-      "Job Listings",
-      "Kids & Parenting",
-      "Marketing & PR",
-      "Motivation & Self-development",
-      "Movies",
-      "Music",
-      "Offers & Promotions",
-      "Pets",
-      "Politics & Incidents",
-      "Psychology & Relationships",
-      "Real Estate",
-      //"Recreation & Entertainment",
-      "Religion & Spirituality",
-      "Science",
-      "Sports",
-      "Technology & Internet",
-      "Travel & Tourism",
-      "Video Games",
-      "Other"};
+  const char *TGCAT_CATEGORY_NAME[] = 
+  {      
+    "Art & Design",
+    "Bets & Gambling",
+    "Books",
+    "Business & Entrepreneurship",
+    "Cars & Other Vehicles",
+    "Celebrities & Lifestyle",
+    "Cryptocurrencies",
+    "Culture & Events",
+    "Curious Facts",
+    "Directories of Channels & Bots",
+    "Drug Sale",
+    "Economy & Finance",
+    "Education",
+    "Erotic Content",
+    "Fashion & Beauty",
+    "Fitness",
+    "Forgery",
+    "Food & Cooking",
+    "Foreign Language Learning",
+    "Hacked Accounts & Software",
+    "Health & Medicine",
+    "History",
+    "Hobbies & Activities",
+    "Home & Architecture",
+    "Humor & Memes",
+    "Investments",
+    "Job Listings",
+    "Kids & Parenting",
+    "Marketing & PR",
+    "Motivation & Self-development ",
+    "Movies",
+    "Music",
+    "Offers & Promotions",
+    "Personal Data",
+    "Pets",
+    "Pirated Content",
+    "Politics & Incidents",
+    "Prostitution",
+    "Psychology & Relationships",
+    "Real Estate",
+    "Recreation & Entertainment",
+    "Religion & Spirituality",
+    "Science",
+    "Spam & Fake Followers",
+    "Sports",
+    "Technology & Internet",
+    "Travel & Tourism",
+    "Video Games",
+    "Weapon Sale",
+    "Other"   
+  };
 
   /**
- * Detects main topic of a channel.
+ * Detects main topics of a channel.
  * \param[in] channel_info Information about the channel.
  * \param[out] category_probability Array to be filled with probabilities that
  *                                  channel belongs to a corresponding category.

@@ -10,13 +10,16 @@
 struct tgcat_manager_s
 {
   using Preprocessor_t = std::unique_ptr<Preprocessor>;
-  using Predictor_t = std::unique_ptr<IPredict>;
+  using Predictor_t = std::unique_ptr<Predictor>;
 
   Cache cache;
   Preprocessor_t pp{nullptr};
   Predictor_t lp{nullptr};
   Predictor_t cp_en{nullptr};
   Predictor_t cp_ru{nullptr};
+  Predictor_t cp_ar{nullptr};
+  Predictor_t cp_fa{nullptr};
+  Predictor_t cp_uz{nullptr};
 
   int init() noexcept
   {
@@ -24,9 +27,12 @@ struct tgcat_manager_s
     try
     {
       pp = std::make_unique<Preprocessor>(Preprocessor::Mode::RELEASE);
-      lp = std::make_unique<PredictorLanguage>("Language Predictor", Model::language);
-      cp_en = std::make_unique<PredictCategory>("Category Predictor (en)", Model::category_en);
-      cp_ru = std::make_unique<PredictCategory>("Category Predictor (ru)", Model::category_ru);
+      lp = std::make_unique<Predictor>("Language Predictor", Model::language);
+      cp_en = std::make_unique<Predictor>("Category Predictor (en)", Model::category_en);
+      cp_ru = std::make_unique<Predictor>("Category Predictor (ru)", Model::category_ru);
+      cp_ar = std::make_unique<Predictor>("Category Predictor (en)", Model::category_ar);
+      cp_uz = std::make_unique<Predictor>("Category Predictor (ru)", Model::category_uz);
+      cp_fa = std::make_unique<Predictor>("Category Predictor (en)", Model::category_fa);
     }
     catch (const std::exception &ex)
     {

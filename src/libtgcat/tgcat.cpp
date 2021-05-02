@@ -31,6 +31,18 @@ static std::vector<std::pair<real, std::string>> get_category_predictions() noex
   {
     return tg.cp_ru->predict(tg.cache.get_data(), -1);
   }
+  if (tg.cache.get_code() == Code::Arabic)
+  {
+    return tg.cp_ar->predict(tg.cache.get_data(), -1);
+  }
+  if (tg.cache.get_code() == Code::Persian)
+  {
+    return tg.cp_fa->predict(tg.cache.get_data(), -1);
+  }
+  if (tg.cache.get_code() == Code::Uzbek)
+  {
+    return tg.cp_uz->predict(tg.cache.get_data(), -1);
+  }
   return {};
 }
 
@@ -46,7 +58,7 @@ static void populate_category_probabilites(const std::vector<std::pair<real, std
   for (auto [probability, label] : predictions)
   {
     probability /= sum;
-    //label = label.substr(9); // skip __label__
+    label = label.substr(9); // skip __label__
     const auto index = std::stoi(label);
     category_probability[index] = probability;
   }
@@ -78,8 +90,8 @@ namespace UseCase__Complete
   {
     auto data = std::string{channel_info->title};
     data += ' ' + std::string{channel_info->description};
-    const auto count = channel_info->post_count;
-    const auto posts = channel_info->posts;
+    const auto count = channel_info->total_post_count;
+    const auto posts = channel_info->recent_posts;
     if (is_unique)
     {
       std::set<std::string> unique_posts;
@@ -130,12 +142,12 @@ namespace UseCase__Randomized
   static std::string get_channel_data(const TelegramChannelInfo *channel_info,
                                       const bool is_unique = false) noexcept
   {
-    const auto indices = get_random_indices(channel_info->post_count,
+    const auto indices = get_random_indices(channel_info->total_post_count,
                                             Config::Randomized::posts_threshold);
     auto data = std::string{channel_info->title};
     data += ' ' + std::string{channel_info->description};
-    const auto count = channel_info->post_count;
-    const auto posts = channel_info->posts;
+    const auto count = channel_info->total_post_count;
+    const auto posts = channel_info->recent_posts;
     if (is_unique)
     {
       std::set<std::string> unique_posts;
@@ -204,28 +216,22 @@ namespace UseCase__Randomized
 
 // libtgcat
 
-int tgcat_init()
-{
+int tgcat_init() {
   return tg.init();
 }
 
 int tgcat_detect_language(const struct TelegramChannelInfo *channel_info,
-                          char language_code[6])
-{
-  if (channel_info->post_count < Config::Randomized::posts_threshold)
-  {
+                          char language_code[6]) {
+  if (channel_info->total_post_count < Config::Randomized::posts_threshold) {
     UseCase__Complete::detect_language(channel_info, language_code);
-  }
-  else
-  {
+  } else {
     UseCase__Randomized::detect_language(channel_info, language_code);
   }
   return 0;
 }
 
 int tgcat_detect_category(const struct TelegramChannelInfo *channel_info,
-                          double category_probability[TGCAT_CATEGORY_OTHER + 1])
-{
+                          double category_probability[TGCAT_CATEGORY_OTHER + 1]) {
   detect_category(channel_info, category_probability);
   return 0;
 }
