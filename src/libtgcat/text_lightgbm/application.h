@@ -3,14 +3,10 @@
 #define AAPPLICATION_H_
 
 #include <LightGBM/boosting.h>
-#include <LightGBM/dataset.h>
 #include <LightGBM/metric.h>
 #include <LightGBM/objective_function.h>
-#include <LightGBM/prediction_early_stop.h>
 #include <LightGBM/cuda/vector_cudahost.h>
 #include <LightGBM/utils/common.h>
-#include <LightGBM/utils/openmp_wrapper.h>
-#include <LightGBM/utils/text_reader.h>
 #include <LightGBM/config.h>
 #include <LightGBM/meta.h>
 

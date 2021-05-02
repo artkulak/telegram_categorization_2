@@ -217,12 +217,12 @@ TfIdfVectorizer::matrix TfIdfVectorizer::transform(std::vector<std::string> &doc
     return X_transformed;
 }
 
-std::vector<std::pair<int, double>> TfIdfVectorizer::transform_line(std::string document)
+std::vector<double> TfIdfVectorizer::transform_line(std::string document)
 {
     std::vector<std::string> document_tokenised = tokenise_document(document);
     std::vector<std::vector<std::string>> temp({document_tokenised});
     std::map<std::string, double> documents_word_counts = tf(temp).front();
-    std::vector<std::pair<int, double>> X_transformed = std::vector<std::pair<int, double>>(this->vocabulary_.size(), std::make_pair(0, 0.0));
+    std::vector<double> X_transformed = std::vector<double>(this->vocabulary_.size(), 0.0);
     std::string word;
     size_t w;
     double idf;
@@ -236,11 +236,11 @@ std::vector<std::pair<int, double>> TfIdfVectorizer::transform_line(std::string 
             idf = s.second;
             if (this->use_idf)
             {
-                X_transformed[w].second = documents_word_counts[word] * idf;
+                X_transformed[w] = documents_word_counts[word] * idf;
             }
             else
             {
-                X_transformed[w].second = (documents_word_counts[word] > 0) ? 1 : 0;
+                X_transformed[w] = (documents_word_counts[word] > 0) ? 1 : 0;
             }
         }
     }
@@ -249,10 +249,10 @@ std::vector<std::pair<int, double>> TfIdfVectorizer::transform_line(std::string 
     {
         double norm = 0;
         for (size_t r = 0; r < X_transformed.size(); r++)
-            norm += std::pow(X_transformed[r].second, this->p);
+            norm += std::pow(X_transformed[r], this->p);
         norm = std::sqrt(norm);
         for (size_t r = 0; r < X_transformed.size(); r++)
-            X_transformed[r].second /= norm;
+            X_transformed[r] /= norm;
     }
     return X_transformed;
 }

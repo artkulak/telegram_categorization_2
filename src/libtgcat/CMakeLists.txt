@@ -12,5 +12,5 @@ set_target_properties(fasttext PROPERTIES
 ADD_SUBDIRECTORY(text_lightgbm)
 
 add_library(tgcat SHARED tgcat.cpp preprocessor.cpp predictor.cpp)
-target_link_libraries(tgcat fasttext _text_lightgbm)
+target_link_libraries(tgcat _text_lightgbm fasttext)
 

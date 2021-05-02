@@ -21,8 +21,9 @@ int main(int argc, char **argv)
         app.InitPredict();
         std::vector<std::pair<float, std::string>> vec = app.Predict(line);
         print_vec(vec);
+        app.InitPredict();
         std::vector<std::pair<float, std::string>> vec1 = app.Predict(line1);
-        print_vec(vec);
+        print_vec(vec1);
 
     }
     catch (const std::exception &ex)
