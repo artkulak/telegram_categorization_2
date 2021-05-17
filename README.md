@@ -5,7 +5,6 @@ The task in the second round is to improve the C/C++ library you created in the 
 
 * Team Members:
 	- https://github.com/artkulak
-	- https://github.com/iamAzeem
   - https://github.com/bezbahen0
 
 ## The task
